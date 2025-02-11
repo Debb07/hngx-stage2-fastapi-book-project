@@ -32,6 +32,12 @@ db.books = {
     ),
 }
 
+@router.get("/test", status_code=status.HTTP_200_OK)
+async def test():
+    return JSONResponse(
+        status_code=status.HTTP_200_OK,
+        content={"message": "Hello World"}
+    )
 
 @router.post("/", status_code=status.HTTP_201_CREATED)
 async def create_book(book: Book):
@@ -40,6 +46,15 @@ async def create_book(book: Book):
         status_code=status.HTTP_201_CREATED, content=book.model_dump()
     )
 
+@router.get("/{book_id}")
+async def get_book(book_id: int):
+    if book_id not in db.books:
+        return JSONResponse(
+            status_code=status.HTTP_404_NOT_FOUND,
+            content={"detail": "Book not found"}
+        )
+    
+    return db.books[book_id].model_dump()
 
 @router.get(
     "/", response_model=OrderedDict[int, Book], status_code=status.HTTP_200_OK
